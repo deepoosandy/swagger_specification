@@ -1,0 +1,214 @@
+---
+openapi: 3.0.0
+info:
+  title: Billing Rest Controller
+  description: Specification for the billing rest controler of easy billing app.
+  contact:
+    name: Sandeep Jaiswal
+    url: http://localhost:8080
+    email: sandeepgeu@gmail.com
+  version: "1.0"
+servers:
+- url: http://localhost:8080
+  description: As of now this is used locally.
+- url: http://localhost:8081
+  description: this is second server.
+security:
+- BasicAuth: []
+- JwtAuthToken: []
+paths:
+  /billing/item:
+    get:
+      tags:
+      - Fetch
+      summary: Lists all item
+      description: This will all the **item** present in the system.
+      operationId: getItemsV1
+      parameters:
+      - name: page
+        in: query
+        description: Page number
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: size
+        in: query
+        description: number of records on a page
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: Success Status Code
+        "400":
+          description: Bad request.
+        "404":
+          description: Item not found.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListItemDetails'
+    put:
+      tags:
+      - Update
+      summary: Update the item.
+      description: This is for *future* implementation.
+      operationId: putItemV1
+      responses:
+        "200":
+          description: Success Status code
+        "400":
+          description: Bad request.
+        "404":
+          description: Item not found.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+    post:
+      tags:
+      - Create
+      summary: This is create Item.
+      description: This is for future implementation.
+      operationId: createItemV1
+      requestBody:
+        description: for creating the customer.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemList'
+        required: true
+      responses:
+        "200":
+          description: Success Status code
+        "400":
+          description: Bad request.
+        "404":
+          description: Item not found.
+        "500":
+          description: Internal server error.
+          headers:
+            Locaion:
+              description: location of item just an example
+              style: simple
+              explode: false
+              schema:
+                type: string
+                format: url
+                example: http://exampleurl.com
+          content:
+            applicaion/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+      security: []
+  /item/{itemId}:
+    get:
+      tags:
+      - Fetch
+      operationId: getItemV1
+      parameters:
+      - name: itemId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Gives item by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          example: chhota dhusaha
+        city:
+          type: string
+          example: Balrampur
+        zipCode:
+          type: string
+          example: "271201"
+        stateCode:
+          type: string
+          enum:
+          - up
+          - mp
+          - uk
+          - bh
+    ListItemDetails:
+      type: object
+      properties:
+        itemCode:
+          type: string
+        uploadedDate:
+          type: string
+        itemName:
+          type: string
+        itemDescription:
+          type: string
+        itemUnitPrice:
+          $ref: '#/components/schemas/ListItemDetails_itemUnitPrice'
+    Item:
+      type: object
+      properties:
+        firstName:
+          maxLength: 100
+          minLength: 2
+          type: string
+          example: sandeep
+        lastName:
+          maxLength: 100
+          minLength: 2
+          type: string
+          example: jaiswal
+        address:
+          $ref: '#/components/schemas/Address'
+    ItemList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Item'
+    ListItemDetails_itemUnitPrice:
+      type: object
+      properties:
+        itemCode:
+          type: string
+        effDate:
+          type: string
+        thruDate:
+          type: string
+        measurementUnit:
+          type: string
+        itemUnitPrice:
+          type: number
+          format: double
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    JwtAuthToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
